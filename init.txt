@@ -1,0 +1,13 @@
+# install gcloud
+
+# https://cloud.google.com/sdk/docs/quickstart-macos#before-you-begin
+
+$ gcloud init
+$ gcloud auth application-default login
+
+# check ml-cloud
+
+$ gcloud ml-engine models list
+# may need to enable billing
+
+
