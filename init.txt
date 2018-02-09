@@ -5,6 +5,11 @@
 $ gcloud init
 $ gcloud auth application-default login
 
+# project stuff
+
+PROJECT_ID=cloudml-samples-`date +%Y%m%d%H%M%S`
+gcloud projects create ${PROJECT_ID}
+
 # check ml-cloud
 
 $ gcloud ml-engine models list

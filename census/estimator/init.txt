@@ -1,5 +1,5 @@
 PROJECT_ID=$(gcloud config list project --format "value(core.project)")
-BUCKET_NAME=${PROJECT_ID}-mlengine
+BUCKET_NAME=${PROJECT_ID}-main
 REGION=us-central1
 
 virtualenv --python `which python2.7` env

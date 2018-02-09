@@ -1,4 +1,8 @@
+# init
 
+PROJECT_ID=$(gcloud config list project --format "value(core.project)")
+BUCKET_NAME=${PROJECT_ID}-mlengine
+REGION=us-central1
 
 # run local
 
@@ -37,18 +41,17 @@ gcloud ml-engine local train \
     --eval-steps 100
 
 
-# run on cloud
+# run on cloud, single
 
 TRAIN_DATA=gs://$BUCKET_NAME/data/adult.data.csv
 EVAL_DATA=gs://$BUCKET_NAME/data/adult.test.csv
 TEST_JSON=gs://$BUCKET_NAME/data/test.json
 
-gsutil cp -r data gs://$BUCKET_NAME/data
-gsutil cp ../test.json gs://$BUCKET_NAME/data/test.json
-
 JOB_NAME=census_single_`date +%Y%m%d%H%M%S`
 OUTPUT_PATH=gs://$BUCKET_NAME/$JOB_NAME
 
+gsutil cp -r data gs://$BUCKET_NAME/data
+gsutil cp ../test.json gs://$BUCKET_NAME/data/test.json
 
 gcloud ml-engine jobs submit training ${JOB_NAME} \
     --job-dir ${OUTPUT_PATH} \
@@ -56,9 +59,62 @@ gcloud ml-engine jobs submit training ${JOB_NAME} \
     --module-name trainer.task \
     --package-path trainer/ \
     --region ${REGION} \
+    --config ../config3.yaml \
     -- \
     --train-files ${TRAIN_DATA} \
     --eval-files ${EVAL_DATA} \
     --train-steps 1000 \
     --eval-steps 100 \
     --verbosity DEBUG
+
+# run on cloud, distributed
+
+TRAIN_DATA=gs://$BUCKET_NAME/data/adult.data.csv
+EVAL_DATA=gs://$BUCKET_NAME/data/adult.test.csv
+TEST_JSON=gs://$BUCKET_NAME/data/test.json
+
+JOB_NAME=census_dist_`date +%Y%m%d%H%M%S`
+OUTPUT_PATH=gs://$BUCKET_NAME/$JOB_NAME
+
+gsutil cp -r data gs://$BUCKET_NAME/data
+gsutil cp ../test.json gs://$BUCKET_NAME/data/test.json
+
+gcloud ml-engine jobs submit training ${JOB_NAME} \
+    --job-dir ${OUTPUT_PATH} \
+    --runtime-version 1.4 \
+    --module-name trainer.task \
+    --package-path trainer/ \
+    --region ${REGION} \
+    --scale-tier STANDARD_1 \
+    -- \
+    --train-files ${TRAIN_DATA} \
+    --eval-files ${EVAL_DATA} \
+    --train-steps 1000 \
+    --eval-steps 100 \
+    --verbosity DEBUG
+
+# run on cloud, Hyperparameter Tuning
+
+HPTUNING_CONFIG=../hptuning_config.yaml
+JOB_NAME=census_core_hptune_`date +%Y%m%d%H%M%S`
+TRAIN_DATA=gs://$BUCKET_NAME/data/adult.data.csv
+EVAL_DATA=gs://$BUCKET_NAME/data/adult.test.csv
+OUTPUT_PATH=gs://$BUCKET_NAME/$JOB_NAME
+
+gsutil cp -r data gs://$BUCKET_NAME/data
+gsutil cp ../test.json gs://$BUCKET_NAME/data/test.json
+
+gcloud ml-engine jobs submit training $JOB_NAME \
+    --job-dir $OUTPUT_PATH \
+    --runtime-version 1.4 \
+    --config $HPTUNING_CONFIG \
+    --module-name trainer.task \
+    --package-path trainer/ \
+    --region $REGION \
+    --scale-tier STANDARD_1 \
+    -- \
+    --train-files $TRAIN_DATA \
+    --eval-files $EVAL_DATA \
+    --train-steps 1000 \
+    --verbosity DEBUG  \
+    --eval-steps 100
