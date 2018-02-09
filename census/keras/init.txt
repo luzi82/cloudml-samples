@@ -2,7 +2,7 @@ PROJECT_ID=$(gcloud config list project --format "value(core.project)")
 BUCKET_NAME=${PROJECT_ID}-main
 REGION=us-central1
 
-virtualenv --python `which python2.7` env
+virtualenv --python `which python3` env
 
 source env/bin/activate
 
