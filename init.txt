@@ -7,8 +7,9 @@ $ gcloud auth application-default login
 
 # project stuff
 
-PROJECT_ID=cloudml-samples-`date +%Y%m%d%H%M%S`
-gcloud projects create ${PROJECT_ID}
+$ PROJECT_ID=cloudml-samples-`date +%Y%m%d%H%M%S`
+$ gcloud projects create ${PROJECT_ID}
+$ gcloud config set project ${PROJECT_ID}
 
 # check ml-cloud
 
