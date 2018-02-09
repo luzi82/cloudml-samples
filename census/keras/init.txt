@@ -1,0 +1,22 @@
+PROJECT_ID=$(gcloud config list project --format "value(core.project)")
+BUCKET_NAME=${PROJECT_ID}-main
+REGION=us-central1
+
+virtualenv --python `which python2.7` env
+
+source env/bin/activate
+
+pip install -r requirements.txt
+
+gsutil mb -l ${REGION} gs://${BUCKET_NAME}
+
+mkdir data
+
+TRAIN_FILE=data/adult.data.csv
+EVAL_FILE=data/adult.test.csv
+
+GCS_TRAIN_FILE=gs://cloudml-public/census/data/adult.data.csv
+GCS_EVAL_FILE=gs://cloudml-public/census/data/adult.test.csv
+
+gsutil cp $GCS_TRAIN_FILE $TRAIN_FILE
+gsutil cp $GCS_EVAL_FILE $EVAL_FILE
